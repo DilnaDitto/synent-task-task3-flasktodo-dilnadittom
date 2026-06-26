@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks | Task Manager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #555;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav-link:hover { color: #ff6b81; }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 { text-align: center; color: #333; margin-top: 0; }
+        .form-group { display: flex; gap: 10px; margin-bottom: 30px; }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus { border-color: #ff6b81; outline: none; }
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-add { background-color: #2ed573; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3); }
+        .btn-update { background-color: #ffa502; box-shadow: 0 4px 10px rgba(255, 165, 2, 0.3); }
+        
+        ul { list-style: none; padding: 0; margin: 0; }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        li:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        /* Styles for completed tasks */
+        .completed span { text-decoration: line-through; color: #a4b0be; }
+        .completed { background-color: #f1f2f6; border-color: #dfe4ea; }
+        
+        .task-text { font-size: 1.1rem; color: #2f3542; display: flex; align-items: center; gap: 10px;}
+        .actions { display: flex; gap: 8px; }
+        .action-btn {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        .action-btn:hover { opacity: 0.8; }
+        .btn-done { background-color: #7bed9f; color: #2f3542;}
+        .btn-undo { background-color: #a4b0be; }
+        .btn-edit { background-color: #1e90ff; }
+        .btn-delete { background-color: #ff4757; }
+    </style>
+</head>
+<body>
+
+<div style="max-width: 600px; margin: auto;">
+    <a href="{{ url_for('home') }}" class="nav-link">← Back to Home</a>
+</div>
+
+<div class="container">
+    <h1>Today's Plan</h1>
+
+    <!-- Dynamic Form Toggle -->
+    {% if task_to_edit %}
+        <form action="{{ url_for('update_task', id=task_to_edit[0]) }}" method="POST" class="form-group">
+            <input type="text" name="title" value="{{ task_to_edit[1] }}" required>
+            <button type="submit" class="btn-update">Update Task</button>
+        </form>
+    {% else %}
+        <form action="{{ url_for('add_task') }}" method="POST" class="form-group">
+            <input type="text" name="title" placeholder="What needs to be done?" required>
+            <button type="submit" class="btn-add">+ Add</button>
+        </form>
+    {% endif %}
+
+    <!-- Task List Rendering -->
+    <ul>
+        {% for task in tasks %}
+            <!-- task[3] is the is_completed column (id, title, created_at, is_completed) -->
+            <li class="{% if task[3] %}completed{% endif %}">
+                <div class="task-text">
+                    <span>{{ task[1] }}</span>
+                </div>
+                <div class="actions">
+                    <!-- Toggle Status Button -->
+                    {% if task[3] %}
+                        <a href="{{ url_for('toggle_task', id=task[0], status=1) }}" class="action-btn btn-undo">Undo</a>
+                    {% else %}
+                        <a href="{{ url_for('toggle_task', id=task[0], status=0) }}" class="action-btn btn-done">✔ Done</a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('tasks', edit_id=task[0]) }}" class="action-btn btn-edit">Edit</a>
+                    <a href="{{ url_for('delete_task', id=task[0]) }}" class="action-btn btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                </div>
+            </li>
+        {% else %}
+            <li style="justify-content: center; color: #777; border: none; background: transparent; font-style: italic;">
+                Your day is clear! Add a task to get started.
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 40px auto;
+            max-width: 600px;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        h1 { text-align: center; color: #333; }
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+        }
+        .btn-add { background-color: #28a745; }
+        .btn-update { background-color: #ffc107; color: #333; }
+        .btn-edit { background-color: #007bff; text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 14px; }
+        .btn-delete { background-color: #dc3545; text-decoration: none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 14px; }
+        ul { list-style: none; padding: 0; }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .actions { display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Task Manager</h1>
+
+    {% if task_to_edit %}
+        <form action="{{ url_for('update_task', id=task_to_edit[0]) }}" method="POST" class="form-group">
+            <input type="text" name="title" value="{{ task_to_edit[1] }}" required>
+            <button type="submit" class="btn-update">Update Task</button>
+        </form>
+    {% else %}
+        <form action="{{ url_for('add_task') }}" method="POST" class="form-group">
+            <input type="text" name="title" placeholder="Enter a new task..." required>
+            <button type="submit" class="btn-add">Add Task</button>
+        </form>
+    {% endif %}
+
+    <ul>
+        {% for task in tasks %}
+            <li>
+                <span>{{ task[1] }}</span>
+                <div class="actions">
+                    <a href="{{ url_for('index', edit_id=task[0]) }}" class="btn-edit">Edit</a>
+                    <a href="{{ url_for('delete_task', id=task[0]) }}" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                </div>
+            </li>
+        {% else %}
+            <li style="text-align: center; color: #777; font-style: italic;">No tasks available. Add one above!</li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
